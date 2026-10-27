@@ -1,0 +1,31 @@
+{
+  "model_type": "IsolationForest",
+  "version": "v20261025_042808",
+  "training_samples": 35000,
+  "features": [
+    "flow_duration",
+    "total_fwd_packets",
+    "total_bwd_packets",
+    "total_length_of_fwd_packets",
+    "total_length_of_bwd_packets",
+    "fwd_packet_length_mean",
+    "bwd_packet_length_mean",
+    "flow_bytes_per_s",
+    "flow_packets_per_s",
+    "fwd_iat_mean",
+    "bwd_iat_mean",
+    "flow_iat_mean",
+    "active_mean",
+    "idle_mean",
+    "syn_flag_count",
+    "ack_flag_count",
+    "psh_flag_count",
+    "rst_flag_count",
+    "fin_flag_count"
+  ],
+  "contamination": 0.1,
+  "n_estimators": 100,
+  "random_state": 42,
+  "training_dataset": "benchmark_50k.csv_train_split",
+  "trained_at": "2026-10-25T04:28:08.115423"
+}

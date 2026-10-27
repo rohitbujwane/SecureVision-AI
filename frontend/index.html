@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AI-Based Security Log Analyzer - Anomaly detection dashboard for network security analysis using machine learning">
+    <title>SecureVision AI — Security Log Analyzer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                    <rect width="32" height="32" rx="8" fill="url(#logo-grad)"/>
+                    <path d="M16 6L8 10v6c0 5.55 3.42 10.74 8 12 4.58-1.26 8-6.45 8-12v-6l-8-4z" fill="rgba(255,255,255,0.9)"/>
+                    <path d="M14 17l-2-2-1.41 1.41L14 19.83l7-7L19.59 11.42 14 17z" fill="#0f172a"/>
+                    <defs><linearGradient id="logo-grad" x1="0" y1="0" x2="32" y2="32"><stop stop-color="#6366f1"/><stop offset="1" stop-color="#06b6d4"/></linearGradient></defs>
+                </svg>
+                <span class="logo-text">SecureVision</span>
+            </div>
+        </div>
+
+        <ul class="nav-menu">
+            <li class="nav-item active" data-page="dashboard">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                <span>Dashboard</span>
+            </li>
+            <li class="nav-item" data-page="upload">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                <span>Upload Dataset</span>
+            </li>
+            <li class="nav-item" data-page="alerts">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                <span>Alerts</span>
+            </li>
+            <li class="nav-item" data-page="scans">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <span>Scan History</span>
+            </li>
+            <li class="nav-item" data-page="model">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                <span>Model Status</span>
+            </li>
+            <li class="nav-item" data-page="research">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                <span>Research</span>
+            </li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <div class="sidebar-divider"></div>
+            <p class="sidebar-credit">Academic Research Project</p>
+            <p class="sidebar-version" id="app-version">v1.0.0</p>
+        </div>
+    </nav>
+
+    <!-- Mobile menu toggle -->
+    <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Toggle navigation menu">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+
+    <!-- Main Content -->
+    <main class="main-content" id="main-content">
+
+        <!-- Dashboard Page -->
+        <section class="page active" id="page-dashboard">
+            <div class="page-header">
+                <h1>Security Operations Dashboard</h1>
+                <p class="page-subtitle">Real-time anomaly detection overview</p>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="stats-grid" id="stats-grid">
+                <div class="stat-card" id="stat-events">
+                    <div class="stat-icon events-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value skeleton" id="total-events">—</span>
+                        <span class="stat-label">Events Analyzed</span>
+                    </div>
+                </div>
+                <div class="stat-card" id="stat-anomalies">
+                    <div class="stat-icon anomaly-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value skeleton" id="total-anomalies">—</span>
+                        <span class="stat-label">Anomalies Detected</span>
+                    </div>
+                </div>
+                <div class="stat-card" id="stat-scans">
+                    <div class="stat-icon scans-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value skeleton" id="total-scans">—</span>
+                        <span class="stat-label">Scans Completed</span>
+                    </div>
+                </div>
+                <div class="stat-card" id="stat-rate">
+                    <div class="stat-icon rate-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value skeleton" id="anomaly-rate">—</span>
+                        <span class="stat-label">Anomaly Rate</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="charts-grid">
+                <div class="card chart-card">
+                    <div class="card-header">
+                        <h2>Event Distribution</h2>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="distributionChart"></canvas>
+                    </div>
+                    <div class="empty-state hidden" id="dist-empty">
+                        <p>No scan data available yet. Upload a dataset to begin analysis.</p>
+                    </div>
+                </div>
+                <div class="card chart-card">
+                    <div class="card-header">
+                        <h2>Severity Breakdown</h2>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="severityChart"></canvas>
+                    </div>
+                    <div class="empty-state hidden" id="sev-empty">
+                        <p>No anomalies detected yet.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Scans -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>Recent Scans</h2>
+                </div>
+                <div class="table-wrapper">
+                    <table class="data-table" id="recent-scans-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>File</th>
+                                <th>Status</th>
+                                <th>Events</th>
+                                <th>Anomalies</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recent-scans-body">
+                        </tbody>
+                    </table>
+                    <div class="empty-state" id="scans-empty">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        <p>No scans yet. Upload a CSV dataset to get started.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Model Status Card -->
+            <div class="card" id="model-status-card">
+                <div class="card-header">
+                    <h2>Model Status</h2>
+                    <span class="badge" id="model-badge">Unknown</span>
+                </div>
+                <div class="model-info" id="model-info">
+                    <div class="info-row"><span class="info-label">Type:</span><span class="info-value" id="model-type">—</span></div>
+                    <div class="info-row"><span class="info-label">Version:</span><span class="info-value" id="model-version-val">—</span></div>
+                    <div class="info-row"><span class="info-label">Features:</span><span class="info-value" id="model-features">—</span></div>
+                    <div class="info-row"><span class="info-label">Training Samples:</span><span class="info-value" id="model-samples">—</span></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Upload Page -->
+        <section class="page" id="page-upload">
+            <div class="page-header">
+                <h1>Dataset Upload</h1>
+                <p class="page-subtitle">Upload CSV files for anomaly analysis</p>
+            </div>
+
+            <div class="card upload-card">
+                <div class="upload-zone" id="upload-zone">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                    <h3>Drop CSV file here or click to browse</h3>
+                    <p>Supports network flow data (CIC-IDS2017 format compatible)</p>
+                    <p class="upload-limits">Maximum: 50 MB, 500,000 rows</p>
+                    <input type="file" id="file-input" accept=".csv" hidden>
+                </div>
+
+                <div class="upload-progress hidden" id="upload-progress">
+                    <div class="progress-header">
+                        <span class="progress-filename" id="progress-filename">file.csv</span>
+                        <span class="progress-status" id="progress-status">Uploading...</span>
+                    </div>
+                    <div class="progress-bar-track">
+                        <div class="progress-bar-fill" id="progress-bar"></div>
+                    </div>
+                    <p class="progress-detail" id="progress-detail">Processing...</p>
+                </div>
+
+                <div class="upload-result hidden" id="upload-result">
+                    <div class="result-header" id="result-header">
+                        <h3 id="result-title">Analysis Complete</h3>
+                    </div>
+                    <div class="result-stats" id="result-stats"></div>
+                    <div class="result-actions">
+                        <button class="btn btn-primary" id="view-alerts-btn" onclick="navigateTo('alerts')">View Alerts</button>
+                        <button class="btn btn-secondary" id="upload-another-btn">Upload Another</button>
+                    </div>
+                </div>
+
+                <div class="upload-error hidden" id="upload-error">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                    <h3 id="error-title">Upload Failed</h3>
+                    <p id="error-detail">An error occurred.</p>
+                    <button class="btn btn-secondary" id="retry-upload-btn">Try Again</button>
+                </div>
+            </div>
+
+            <!-- Schema Info -->
+            <div class="card">
+                <div class="card-header"><h2>Supported Schema</h2></div>
+                <div class="schema-info">
+                    <p>The analyzer supports network flow data with the following features. Column names are automatically normalized.</p>
+                    <div class="schema-columns">
+                        <div class="schema-group">
+                            <h4>Flow Metrics</h4>
+                            <ul>
+                                <li><code>flow_duration</code></li>
+                                <li><code>flow_bytes_per_s</code></li>
+                                <li><code>flow_packets_per_s</code></li>
+                                <li><code>flow_iat_mean</code></li>
+                            </ul>
+                        </div>
+                        <div class="schema-group">
+                            <h4>Packet Features</h4>
+                            <ul>
+                                <li><code>total_fwd_packets</code></li>
+                                <li><code>total_bwd_packets</code></li>
+                                <li><code>fwd_packet_length_mean</code></li>
+                                <li><code>bwd_packet_length_mean</code></li>
+                            </ul>
+                        </div>
+                        <div class="schema-group">
+                            <h4>TCP Flags</h4>
+                            <ul>
+                                <li><code>syn_flag_count</code></li>
+                                <li><code>ack_flag_count</code></li>
+                                <li><code>psh_flag_count</code></li>
+                                <li><code>rst_flag_count</code></li>
+                            </ul>
+                        </div>
+                        <div class="schema-group">
+                            <h4>Optional</h4>
+                            <ul>
+                                <li><code>timestamp</code></li>
+                                <li><code>source_ip</code></li>
+                                <li><code>dest_ip</code></li>
+                                <li><code>label</code> (ground truth)</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <p class="schema-note">Minimum 3 numeric features required. See <code>data/README.md</code> for details.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Alerts Page -->
+        <section class="page" id="page-alerts">
+            <div class="page-header">
+                <h1>Security Alerts</h1>
+                <p class="page-subtitle">Investigate anomalous events</p>
+            </div>
+
+            <!-- Filters -->
+            <div class="card filters-card">
+                <div class="filters-row">
+                    <div class="filter-group">
+                        <label for="filter-prediction">Prediction</label>
+                        <select id="filter-prediction" class="filter-select">
+                            <option value="">All</option>
+                            <option value="1">Anomalous</option>
+                            <option value="0">Normal</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="filter-severity">Severity</label>
+                        <select id="filter-severity" class="filter-select">
+                            <option value="">All</option>
+                            <option value="critical">Critical</option>
+                            <option value="high">High</option>
+                            <option value="medium">Medium</option>
+                            <option value="low">Low</option>
+                            <option value="normal">Normal</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="filter-scan">Scan ID</label>
+                        <input type="number" id="filter-scan" class="filter-input" placeholder="Any">
+                    </div>
+                    <div class="filter-group filter-search">
+                        <label for="filter-search-input">Search</label>
+                        <input type="text" id="filter-search-input" class="filter-input" placeholder="IP, protocol, label...">
+                    </div>
+                    <div class="filter-actions">
+                        <button class="btn btn-primary btn-sm" id="apply-filters-btn">Apply</button>
+                        <button class="btn btn-secondary btn-sm" id="clear-filters-btn">Clear</button>
+                        <button class="btn btn-accent btn-sm" id="export-btn">Export CSV</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alerts Table -->
+            <div class="card">
+                <div class="table-wrapper">
+                    <table class="data-table" id="alerts-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Scan</th>
+                                <th>Event#</th>
+                                <th>Prediction</th>
+                                <th>Severity</th>
+                                <th>Score</th>
+                                <th>Source IP</th>
+                                <th>Protocol</th>
+                                <th>Label</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="alerts-body">
+                        </tbody>
+                    </table>
+                    <div class="empty-state" id="alerts-empty">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                        <p>No alerts found. Upload and analyze a dataset first.</p>
+                    </div>
+                </div>
+                <div class="pagination" id="alerts-pagination"></div>
+            </div>
+
+            <!-- Alert Detail Modal -->
+            <div class="modal-overlay hidden" id="alert-modal">
+                <div class="modal">
+                    <div class="modal-header">
+                        <h2 id="modal-title">Alert Details</h2>
+                        <button class="modal-close" id="modal-close-btn" aria-label="Close">&times;</button>
+                    </div>
+                    <div class="modal-body" id="modal-body">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Scans Page -->
+        <section class="page" id="page-scans">
+            <div class="page-header">
+                <h1>Scan History</h1>
+                <p class="page-subtitle">Previous analysis runs</p>
+            </div>
+            <div class="card">
+                <div class="table-wrapper">
+                    <table class="data-table" id="scans-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Filename</th>
+                                <th>Status</th>
+                                <th>Total Events</th>
+                                <th>Anomalies</th>
+                                <th>Normal</th>
+                                <th>Model Version</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="scans-body"></tbody>
+                    </table>
+                    <div class="empty-state" id="scans-page-empty">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        <p>No scans recorded yet.</p>
+                    </div>
+                </div>
+                <div class="pagination" id="scans-pagination"></div>
+            </div>
+        </section>
+
+        <!-- Model Page -->
+        <section class="page" id="page-model">
+            <div class="page-header">
+                <h1>Model Status</h1>
+                <p class="page-subtitle">Machine learning model configuration and health</p>
+            </div>
+            <div class="card" id="model-detail-card">
+                <div class="model-detail-content" id="model-detail-content">
+                    <div class="loading-spinner">Loading model information...</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Research Page -->
+        <section class="page" id="page-research">
+            <div class="page-header">
+                <h1>Research & Evaluation</h1>
+                <p class="page-subtitle">Model performance metrics from evaluation experiments</p>
+            </div>
+            <div class="card" id="research-content">
+                <div class="loading-spinner">Loading research data...</div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="main-footer">
+            <p><strong>SecureVision AI</strong> — AI-Based Security Log Analyzer</p>
+            <p>Academic research project for B.Tech Computer Science Engineering.<br>
+            This tool assists with anomaly detection in network data. Flagged events require manual investigation and do not represent confirmed security incidents.</p>
+        </footer>
+    </main>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
